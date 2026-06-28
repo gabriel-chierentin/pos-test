@@ -1,8 +1,10 @@
 package com.postest.infrastructure.services.external;
 
+import com.postest.domain.enums.TerminalType;
+
 import java.util.UUID;
 
 public interface FakeTerminalReservationService {
-    void reserveTerminal(UUID terminalId, String customerId);
+    UUID reserveTerminal(TerminalType terminalType, String customerId);
 }
 
