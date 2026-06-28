@@ -15,6 +15,7 @@ import com.postest.infrastructure.repositories.TerminalRequestRepository;
 import com.postest.infrastructure.services.external.ICustomerService;
 import com.postest.infrastructure.services.external.ILogisticsService;
 import com.postest.infrastructure.services.external.ITerminalReservationService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,7 +31,10 @@ public class TerminalRequestService {
     private final ICustomerService customerService;
     private final ITerminalReservationService terminalReservationService;
     private final ILogisticsService logisticsService;
-    private final long stepDelay;
+
+    @Value("${terminal.request.step.delay:0}")
+    @SuppressWarnings("all")
+    private long stepDelay;
 
     public TerminalRequestService(
             TerminalRequestRepository terminalRequestRepository,
@@ -43,9 +47,6 @@ public class TerminalRequestService {
         this.customerService = customerService;
         this.terminalReservationService = terminalReservationService;
         this.logisticsService = logisticsService;
-        // Read delay from environment variable (default 0ms if not set)
-        String delayEnv = System.getenv("TERMINAL_REQUEST_STEP_DELAY");
-        this.stepDelay = (delayEnv != null) ? Long.parseLong(delayEnv) : 0L;
     }
 
     public TerminalRequestDto createTerminalRequest(CreateTerminalRequestDto dto) {
