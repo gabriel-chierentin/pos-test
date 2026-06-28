@@ -1,6 +1,0 @@
-docker run --name postest-postgres \
-  -e POSTGRES_USER=pos \
-  -e POSTGRES_PASSWORD=pos \
-  -e POSTGRES_DB=maindb \
-  -p 5432:5432 \
-  -d postgres:latest

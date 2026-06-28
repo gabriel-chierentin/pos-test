@@ -41,7 +41,7 @@ public class CustomerValidationService {
         if (!customer.getActive()) {
             request.setStatus(TerminalRequestStatus.REJEITADO);
             terminalRequestRepository.save(request);
-            return;
+            throw new CustomerNotFoundException(request.getCustomerId());
         }
 
         request.setStatus(TerminalRequestStatus.VALIDADO);

@@ -18,8 +18,7 @@ public class FakeFakeTerminalReservationService implements FakeTerminalReservati
         }
 
         // Simula cenário onde não há terminais disponíveis para determinados tipos
-        // Por exemplo, se o tipo for POS_4G e o cliente for CUST-003, simula indisponibilidade
-        if (terminalType == TerminalType.POS_4G && "CUST-003".equals(customerId)) {
+        if ("CUST-789".equals(customerId)) {
             throw new TerminalUnavailableException("No available terminal of type " + terminalType);
         }
 

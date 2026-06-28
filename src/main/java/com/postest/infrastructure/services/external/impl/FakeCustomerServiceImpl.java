@@ -10,7 +10,6 @@ public class FakeCustomerServiceImpl implements FakeCustomerService {
 
     @Override
     public CustomerDto validateCustomer(String customerId) {
-        // Clientes válidos e ativos
         if ("CUST-123".equals(customerId)) {
             return CustomerDto.builder()
                     .id(customerId)
@@ -23,19 +22,27 @@ public class FakeCustomerServiceImpl implements FakeCustomerService {
         if ("CUST-456".equals(customerId)) {
             return CustomerDto.builder()
                     .id(customerId)
-                    .name("Customer Two")
-                    .active(true)
+                    .name("Customer Two (inactive)")
+                    .active(false)
                     .email("customer2@example.com")
                     .build();
         }
 
-        // Cliente inativo
         if ("CUST-789".equals(customerId)) {
             return CustomerDto.builder()
                     .id(customerId)
-                    .name("Inactive Customer")
-                    .active(false)
-                    .email("inactive@example.com")
+                    .name("Customer Three")
+                    .active(true)
+                    .email("customer3@example.com")
+                    .build();
+        }
+
+        if ("CUST-321".equals(customerId)) {
+            return CustomerDto.builder()
+                    .id(customerId)
+                    .name("Customer Four")
+                    .active(true)
+                    .email("customer4@example.com")
                     .build();
         }
 

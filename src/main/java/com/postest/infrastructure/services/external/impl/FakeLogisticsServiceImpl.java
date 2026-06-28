@@ -8,26 +8,23 @@ import com.postest.domain.entities.Address;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class FakeLogisticsServiceImpl implements FakeLogisticsService {
 
-    private final AtomicInteger callCounter = new AtomicInteger(0);
-
     @Override
     public DeliveryScheduleDto scheduleDelivery(UUID terminalId, String customerId, Address address, LocalDateTime scheduledDate) {
-        // Falha para datas no passado
-        if (scheduledDate.isBefore(LocalDateTime.now())) {
-            throw new LogisticsException("Scheduled date cannot be in the past");
+        // Validação básica
+        if (scheduledDate == null || customerId == null || terminalId == null || address == null) {
+            throw new LogisticsException("Invalid delivery parameters");
         }
 
-        // Simula falha a cada 3 chamadas (para testes)
-        // Descomente a linha abaixo para ativar essa simulação
-        // if (callCounter.incrementAndGet() % 3 == 0) {
-        //     throw new LogisticsException("Simulated logistics failure");
-        // }
+        // Simula falha de logística para cliente específico (para testes)
+        if ("CUST-321".equals(customerId)) {
+            throw new LogisticsException("Logistics service unavailable for this region");
+        }
 
+        // Retorna agendamento mockado para outros casos
         return DeliveryScheduleDto.builder()
                 .id(UUID.randomUUID())
                 .terminalId(terminalId)
