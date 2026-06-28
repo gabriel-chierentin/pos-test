@@ -2,11 +2,11 @@ package com.postest.infrastructure.services.external.impl;
 
 import com.postest.application.dtos.CustomerDto;
 import com.postest.application.exceptions.CustomerNotFoundException;
-import com.postest.infrastructure.services.external.ICustomerService;
+import com.postest.infrastructure.services.external.FakeCustomerService;
 import org.springframework.stereotype.Service;
 
 @Service
-public class FakeCustomerService implements ICustomerService {
+public class FakeCustomerServiceImpl implements FakeCustomerService {
 
     @Override
     public CustomerDto validateCustomer(String customerId) {
@@ -30,7 +30,7 @@ public class FakeCustomerService implements ICustomerService {
         }
 
         // Cliente inativo
-        if ("CUST-INACTIVE".equals(customerId)) {
+        if ("CUST-789".equals(customerId)) {
             return CustomerDto.builder()
                     .id(customerId)
                     .name("Inactive Customer")

@@ -6,7 +6,7 @@ import com.postest.domain.entities.Address;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-public interface ILogisticsService {
+public interface FakeLogisticsService {
     DeliveryScheduleDto scheduleDelivery(UUID terminalId, String customerId, Address address, LocalDateTime scheduledDate);
 }
 

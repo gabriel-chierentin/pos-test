@@ -2,7 +2,7 @@ package com.postest.infrastructure.services.external.impl;
 
 import com.postest.application.dtos.DeliveryScheduleDto;
 import com.postest.application.exceptions.LogisticsException;
-import com.postest.infrastructure.services.external.ILogisticsService;
+import com.postest.infrastructure.services.external.FakeLogisticsService;
 import org.springframework.stereotype.Service;
 import com.postest.domain.entities.Address;
 
@@ -11,7 +11,7 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
-public class FakeLogisticsService implements ILogisticsService {
+public class FakeLogisticsServiceImpl implements FakeLogisticsService {
 
     private final AtomicInteger callCounter = new AtomicInteger(0);
 

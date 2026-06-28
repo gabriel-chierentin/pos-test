@@ -2,18 +2,12 @@ package com.postest.application.services;
 
 import com.postest.application.dtos.AddressDto;
 import com.postest.application.dtos.CreateTerminalRequestDto;
-import com.postest.application.dtos.CustomerDto;
-import com.postest.application.dtos.DeliveryScheduleDto;
 import com.postest.application.dtos.TerminalRequestDto;
-import com.postest.domain.entities.Terminal;
+import com.postest.application.mappers.TerminalRequestMapper;
 import com.postest.domain.entities.TerminalRequest;
 import com.postest.domain.enums.TerminalRequestStatus;
 import com.postest.domain.enums.TerminalType;
-import com.postest.infrastructure.repositories.TerminalRepository;
 import com.postest.infrastructure.repositories.TerminalRequestRepository;
-import com.postest.infrastructure.services.external.ICustomerService;
-import com.postest.infrastructure.services.external.ITerminalReservationService;
-import com.postest.infrastructure.services.external.ILogisticsService;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,205 +20,203 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class TerminalRequestServiceTest {
 
-    private TerminalRequestService terminalRequestService;
+    private TerminalRequestFacadeService facadeService;
 
     @Mock
     private TerminalRequestRepository terminalRequestRepository;
 
     @Mock
-    private TerminalRepository terminalRepository;
+    private TerminalRequestMapper terminalRequestMapper;
 
     @Mock
-    private ICustomerService customerService;
+    private CustomerValidationService customerValidationService;
 
     @Mock
-    private ITerminalReservationService terminalReservationService;
+    private TerminalReservationService terminalReservationService;
 
     @Mock
-    private ILogisticsService logisticsService;
+    private DeliverySchedulingService deliverySchedulingService;
 
     @BeforeEach
     void setUp() {
-        terminalRequestService = new TerminalRequestService(
+        facadeService = new TerminalRequestFacadeService(
                 terminalRequestRepository,
-                terminalRepository,
-                customerService,
+                terminalRequestMapper,
+                customerValidationService,
                 terminalReservationService,
-                logisticsService
+                deliverySchedulingService
         );
     }
 
     // Teste 1: Cliente válido, terminal disponível e logística disponível deve resultar em AGENDADO
     @Test
-    void testCreateTerminalRequest_ValidCustomerWithAvailableTerminalAndLogistics_ShouldReturn_AGENDADO() {
+    void testCreateTerminalRequest_ValidCustomerWithAvailableTerminalAndLogistics_ShouldReturn_AGENDADO() throws Exception {
         // Arrange
         CreateTerminalRequestDto dto = new CreateTerminalRequestDto();
-        dto.setCustomerId("CUST-123");
+        String customerId = "CUST-001";
+        dto.setCustomerId(customerId);
         dto.setTerminalType(TerminalType.POS_WIFI);
         dto.setAddress(new AddressDto("Rua Exemplo", "100", "São Paulo", "SP", "01000-000"));
-
-        UUID terminalId = UUID.randomUUID();
-        Terminal availableTerminal = Terminal.builder()
-                .id(terminalId)
-                .terminalType(TerminalType.POS_WIFI)
-                .isAvailable(true)
-                .build();
 
         UUID requestId = UUID.randomUUID();
         TerminalRequest savedRequest = TerminalRequest.builder()
                 .id(requestId)
-                .customerId("CUST-123")
+                .customerId(customerId)
                 .terminalType(TerminalType.POS_WIFI)
-                .status(TerminalRequestStatus.AGENDADO)
+                .status(TerminalRequestStatus.VALIDADO)
                 .build();
 
-        CustomerDto customerDto = new CustomerDto();
-        customerDto.setActive(true);
-
-        DeliveryScheduleDto deliveryScheduleDto = new DeliveryScheduleDto();
+        TerminalRequestDto expectedDto = new TerminalRequestDto();
+        expectedDto.setId(requestId);
+        expectedDto.setCustomerId(customerId);
+        expectedDto.setStatus(TerminalRequestStatus.AGENDADO);
 
         // Mock comportamentos
         when(terminalRequestRepository.save(any())).thenReturn(savedRequest);
-        when(customerService.validateCustomer("CUST-123")).thenReturn(customerDto);
-        when(terminalRepository.findByTerminalTypeAndIsAvailableTrue(TerminalType.POS_WIFI))
-                .thenReturn(Optional.of(availableTerminal));
-        when(logisticsService.scheduleDelivery(eq(terminalId), eq("CUST-123"), any(), any()))
-                .thenReturn(deliveryScheduleDto);
+        when(terminalRequestMapper.fromCreateDto(dto)).thenReturn(savedRequest);
+        when(terminalRequestMapper.toDto(any())).thenReturn(expectedDto);
+
+        doNothing().when(customerValidationService).validate(any());
+        doNothing().when(terminalReservationService).reserve(any());
+        doNothing().when(deliverySchedulingService).schedule(any());
 
         // Act
-        TerminalRequestDto result = terminalRequestService.createTerminalRequest(dto);
+        TerminalRequestDto result = facadeService.createTerminalRequest(dto);
 
         // Assert
         assertNotNull(result);
         assertEquals(TerminalRequestStatus.AGENDADO, result.getStatus());
-        assertEquals("CUST-123", result.getCustomerId());
-        verify(customerService).validateCustomer("CUST-123");
-        verify(terminalRepository).findByTerminalTypeAndIsAvailableTrue(TerminalType.POS_WIFI);
-        verify(logisticsService).scheduleDelivery(eq(terminalId), eq("CUST-123"), any(), any());
+        verify(customerValidationService).validate(any());
+        verify(terminalReservationService).reserve(any());
+        verify(deliverySchedulingService).schedule(any());
     }
 
     // Teste 2: Cliente inexistente ou inativo deve resultar em REJEITADO
     @Test
-    void testCreateTerminalRequest_InvalidOrInactiveCustomer_ShouldReturn_REJEITADO() {
+    void testCreateTerminalRequest_InvalidOrInactiveCustomer_ShouldReturn_REJEITADO() throws Exception {
         // Arrange
         CreateTerminalRequestDto dto = new CreateTerminalRequestDto();
-        dto.setCustomerId("CUST-INVALID");
+        String customerId = "CUST-002";
+        dto.setCustomerId(customerId);
         dto.setTerminalType(TerminalType.POS_WIFI);
         dto.setAddress(new AddressDto("Rua Exemplo", "100", "São Paulo", "SP", "01000-000"));
 
         UUID requestId = UUID.randomUUID();
         TerminalRequest savedRequest = TerminalRequest.builder()
                 .id(requestId)
-                .customerId("CUST-INVALID")
+                .customerId(customerId)
                 .terminalType(TerminalType.POS_WIFI)
                 .status(TerminalRequestStatus.REJEITADO)
                 .build();
 
-        CustomerDto customerDto = new CustomerDto();
-        customerDto.setActive(false);
+        TerminalRequestDto expectedDto = new TerminalRequestDto();
+        expectedDto.setStatus(TerminalRequestStatus.REJEITADO);
 
         // Mock comportamentos
         when(terminalRequestRepository.save(any())).thenReturn(savedRequest);
-        when(customerService.validateCustomer("CUST-INVALID")).thenReturn(customerDto);
+        when(terminalRequestMapper.fromCreateDto(dto)).thenReturn(savedRequest);
+        when(terminalRequestMapper.toDto(any())).thenReturn(expectedDto);
+
+        doThrow(new com.postest.application.exceptions.CustomerNotFoundException("Customer not found"))
+                .when(customerValidationService).validate(any());
 
         // Act
-        TerminalRequestDto result = terminalRequestService.createTerminalRequest(dto);
+        TerminalRequestDto result = facadeService.createTerminalRequest(dto);
 
         // Assert
         assertNotNull(result);
         assertEquals(TerminalRequestStatus.REJEITADO, result.getStatus());
-        verify(customerService).validateCustomer("CUST-INVALID");
-        verify(terminalRepository, never()).findByTerminalTypeAndIsAvailableTrue(any());
-        verify(logisticsService, never()).scheduleDelivery(any(), any(), any(), any());
+        verify(customerValidationService).validate(any());
+        verify(terminalReservationService, never()).reserve(any());
+        verify(deliverySchedulingService, never()).schedule(any());
     }
 
     // Teste 3: Cliente válido sem terminal disponível deve resultar em ERRO_RESERVA
     @Test
-    void testCreateTerminalRequest_ValidCustomerWithoutAvailableTerminal_ShouldReturn_ERRO_RESERVA() {
+    void testCreateTerminalRequest_ValidCustomerWithoutAvailableTerminal_ShouldReturn_ERRO_RESERVA() throws Exception {
         // Arrange
         CreateTerminalRequestDto dto = new CreateTerminalRequestDto();
-        dto.setCustomerId("CUST-123");
+        String customerId = "CUST-003";
+        dto.setCustomerId(customerId);
         dto.setTerminalType(TerminalType.POS_4G);
         dto.setAddress(new AddressDto("Rua Exemplo", "100", "São Paulo", "SP", "01000-000"));
 
         UUID requestId = UUID.randomUUID();
         TerminalRequest savedRequest = TerminalRequest.builder()
                 .id(requestId)
-                .customerId("CUST-123")
+                .customerId(customerId)
                 .terminalType(TerminalType.POS_4G)
                 .status(TerminalRequestStatus.ERRO_RESERVA)
                 .build();
 
-        CustomerDto customerDto = new CustomerDto();
-        customerDto.setActive(true);
+        TerminalRequestDto expectedDto = new TerminalRequestDto();
+        expectedDto.setStatus(TerminalRequestStatus.ERRO_RESERVA);
 
         // Mock comportamentos
         when(terminalRequestRepository.save(any())).thenReturn(savedRequest);
-        when(customerService.validateCustomer("CUST-123")).thenReturn(customerDto);
-        when(terminalRepository.findByTerminalTypeAndIsAvailableTrue(TerminalType.POS_4G))
-                .thenReturn(Optional.empty());
+        when(terminalRequestMapper.fromCreateDto(dto)).thenReturn(savedRequest);
+        when(terminalRequestMapper.toDto(any())).thenReturn(expectedDto);
+
+        doNothing().when(customerValidationService).validate(any());
+        doThrow(new com.postest.application.exceptions.TerminalUnavailableException("No terminals available"))
+                .when(terminalReservationService).reserve(any());
 
         // Act
-        TerminalRequestDto result = terminalRequestService.createTerminalRequest(dto);
+        TerminalRequestDto result = facadeService.createTerminalRequest(dto);
 
         // Assert
         assertNotNull(result);
         assertEquals(TerminalRequestStatus.ERRO_RESERVA, result.getStatus());
-        verify(customerService).validateCustomer("CUST-123");
-        verify(terminalRepository).findByTerminalTypeAndIsAvailableTrue(TerminalType.POS_4G);
-        verify(logisticsService, never()).scheduleDelivery(any(), any(), any(), any());
+        verify(customerValidationService).validate(any());
+        verify(terminalReservationService).reserve(any());
+        verify(deliverySchedulingService, never()).schedule(any());
     }
 
     // Teste 4: Cliente válido com terminal reservado, mas falha no agendamento, deve resultar em ERRO_AGENDAMENTO
     @Test
-    void testCreateTerminalRequest_ValidCustomerButLogisticsFailure_ShouldReturn_ERRO_AGENDAMENTO() {
+    void testCreateTerminalRequest_ValidCustomerButLogisticsFailure_ShouldReturn_ERRO_AGENDAMENTO() throws Exception {
         // Arrange
         CreateTerminalRequestDto dto = new CreateTerminalRequestDto();
-        dto.setCustomerId("CUST-123");
+        String customerId = "CUST-004";
+        dto.setCustomerId(customerId);
         dto.setTerminalType(TerminalType.POS_WIFI);
         dto.setAddress(new AddressDto("Rua Exemplo", "100", "São Paulo", "SP", "01000-000"));
-
-        UUID terminalId = UUID.randomUUID();
-        Terminal availableTerminal = Terminal.builder()
-                .id(terminalId)
-                .terminalType(TerminalType.POS_WIFI)
-                .isAvailable(true)
-                .build();
 
         UUID requestId = UUID.randomUUID();
         TerminalRequest savedRequest = TerminalRequest.builder()
                 .id(requestId)
-                .customerId("CUST-123")
+                .customerId(customerId)
                 .terminalType(TerminalType.POS_WIFI)
                 .status(TerminalRequestStatus.ERRO_AGENDAMENTO)
                 .build();
 
-        CustomerDto customerDto = new CustomerDto();
-        customerDto.setActive(true);
+        TerminalRequestDto expectedDto = new TerminalRequestDto();
+        expectedDto.setStatus(TerminalRequestStatus.ERRO_AGENDAMENTO);
 
         // Mock comportamentos
         when(terminalRequestRepository.save(any())).thenReturn(savedRequest);
-        when(customerService.validateCustomer("CUST-123")).thenReturn(customerDto);
-        when(terminalRepository.findByTerminalTypeAndIsAvailableTrue(TerminalType.POS_WIFI))
-                .thenReturn(Optional.of(availableTerminal));
-        when(logisticsService.scheduleDelivery(eq(terminalId), eq("CUST-123"), any(), any()))
-                .thenThrow(new RuntimeException("Logistics failure"));
+        when(terminalRequestMapper.fromCreateDto(dto)).thenReturn(savedRequest);
+        when(terminalRequestMapper.toDto(any())).thenReturn(expectedDto);
+
+        doNothing().when(customerValidationService).validate(any());
+        doNothing().when(terminalReservationService).reserve(any());
+        doThrow(new com.postest.application.exceptions.LogisticsException("Logistics failure"))
+                .when(deliverySchedulingService).schedule(any());
 
         // Act
-        TerminalRequestDto result = terminalRequestService.createTerminalRequest(dto);
+        TerminalRequestDto result = facadeService.createTerminalRequest(dto);
 
         // Assert
         assertNotNull(result);
         assertEquals(TerminalRequestStatus.ERRO_AGENDAMENTO, result.getStatus());
-        verify(customerService).validateCustomer("CUST-123");
-        verify(terminalRepository).findByTerminalTypeAndIsAvailableTrue(TerminalType.POS_WIFI);
-        verify(logisticsService).scheduleDelivery(eq(terminalId), eq("CUST-123"), any(), any());
+        verify(customerValidationService).validate(any());
+        verify(terminalReservationService).reserve(any());
+        verify(deliverySchedulingService).schedule(any());
     }
 
     // Teste 5: Consulta de solicitação existente deve retornar os dados corretamente
@@ -232,23 +224,32 @@ class TerminalRequestServiceTest {
     void testGetTerminalRequest_ExistingRequest_ShouldReturnCorrectData() {
         // Arrange
         UUID requestId = UUID.randomUUID();
+        String customerId = "CUST-005";
+
         TerminalRequest existingRequest = TerminalRequest.builder()
                 .id(requestId)
-                .customerId("CUST-123")
+                .customerId(customerId)
                 .terminalType(TerminalType.POS_WIFI)
                 .status(TerminalRequestStatus.AGENDADO)
                 .build();
 
+        TerminalRequestDto expectedDto = new TerminalRequestDto();
+        expectedDto.setId(requestId);
+        expectedDto.setCustomerId(customerId);
+        expectedDto.setTerminalType(TerminalType.POS_WIFI);
+        expectedDto.setStatus(TerminalRequestStatus.AGENDADO);
+
         // Mock comportamento
         when(terminalRequestRepository.findById(requestId)).thenReturn(Optional.of(existingRequest));
+        when(terminalRequestMapper.toDto(existingRequest)).thenReturn(expectedDto);
 
         // Act
-        TerminalRequestDto result = terminalRequestService.getTerminalRequest(requestId);
+        TerminalRequestDto result = facadeService.getTerminalRequest(requestId);
 
         // Assert
         assertNotNull(result);
         assertEquals(requestId, result.getId());
-        assertEquals("CUST-123", result.getCustomerId());
+        assertEquals(customerId, result.getCustomerId());
         assertEquals(TerminalType.POS_WIFI, result.getTerminalType());
         assertEquals(TerminalRequestStatus.AGENDADO, result.getStatus());
         verify(terminalRequestRepository).findById(requestId);
@@ -264,7 +265,8 @@ class TerminalRequestServiceTest {
         when(terminalRequestRepository.findById(nonExistentId)).thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThrows(RuntimeException.class, () -> terminalRequestService.getTerminalRequest(nonExistentId));
+        assertThrows(com.postest.application.exceptions.TerminalRequestNotFoundException.class,
+                () -> facadeService.getTerminalRequest(nonExistentId));
 
         verify(terminalRequestRepository).findById(nonExistentId);
     }

@@ -2,7 +2,7 @@ package com.postest.presentation.controllers;
 
 import com.postest.application.dtos.CreateTerminalRequestDto;
 import com.postest.application.dtos.TerminalRequestDto;
-import com.postest.application.services.TerminalRequestService;
+import com.postest.application.services.TerminalRequestFacadeService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,22 +14,22 @@ import java.util.UUID;
 @RequestMapping("/terminal-requests")
 public class TerminalRequestController {
 
-    private final TerminalRequestService terminalRequestService;
+    private final TerminalRequestFacadeService terminalRequestFacadeService;
 
-    public TerminalRequestController(TerminalRequestService terminalRequestService) {
-        this.terminalRequestService = terminalRequestService;
+    public TerminalRequestController(TerminalRequestFacadeService terminalRequestFacadeService) {
+        this.terminalRequestFacadeService = terminalRequestFacadeService;
     }
 
     @PostMapping
     public ResponseEntity<TerminalRequestDto> createTerminalRequest(@Valid @RequestBody CreateTerminalRequestDto dto) {
-        TerminalRequestDto response = terminalRequestService.createTerminalRequest(dto);
+        TerminalRequestDto response = terminalRequestFacadeService.createTerminalRequest(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
 
     @GetMapping("/{id}")
     public ResponseEntity<TerminalRequestDto> getTerminalRequest(@PathVariable UUID id) {
-        TerminalRequestDto response = terminalRequestService.getTerminalRequest(id);
+        TerminalRequestDto response = terminalRequestFacadeService.getTerminalRequest(id);
         return ResponseEntity.ok(response);
     }
 }
