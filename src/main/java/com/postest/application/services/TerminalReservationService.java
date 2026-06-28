@@ -6,6 +6,8 @@ import com.postest.domain.enums.TerminalRequestStatus;
 import com.postest.infrastructure.repositories.TerminalRequestRepository;
 import com.postest.infrastructure.services.external.FakeTerminalReservationService;
 import com.postest.infrastructure.utils.SleepUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +15,8 @@ import java.util.UUID;
 
 @Service
 public class TerminalReservationService {
+
+    private static final Logger log = LoggerFactory.getLogger(TerminalReservationService.class);
 
     private final TerminalRequestRepository terminalRequestRepository;
     private final FakeTerminalReservationService externalReservationService;
@@ -37,11 +41,17 @@ public class TerminalReservationService {
     public void reserve(TerminalRequest request) throws TerminalUnavailableException {
         SleepUtil.sleepIfConfigured(stepDelay);
 
+        log.info("[Request={}] Status: VALIDADO → Iniciando reserva de terminal tipo={}",
+                request.getId(), request.getTerminalType());
+
         UUID terminalId = externalReservationService.reserveTerminal(request.getTerminalType(), request.getCustomerId());
 
         request.setReservedTerminalId(terminalId);
         request.setStatus(TerminalRequestStatus.RESERVADO);
         terminalRequestRepository.save(request);
+
+        log.info("[Request={}] Status: VALIDADO → RESERVADO | Terminal reservado: terminalId={}",
+                request.getId(), terminalId);
     }
 }
 

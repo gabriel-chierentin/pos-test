@@ -10,6 +10,8 @@ import com.postest.application.mappers.TerminalRequestMapper;
 import com.postest.domain.entities.TerminalRequest;
 import com.postest.domain.enums.TerminalRequestStatus;
 import com.postest.infrastructure.repositories.TerminalRequestRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +20,8 @@ import java.util.UUID;
 @Service
 @Transactional
 public class TerminalRequestFacadeService {
+
+    private static final Logger log = LoggerFactory.getLogger(TerminalRequestFacadeService.class);
 
     private final TerminalRequestRepository terminalRequestRepository;
     private final TerminalRequestMapper terminalRequestMapper;
@@ -42,20 +46,32 @@ public class TerminalRequestFacadeService {
         TerminalRequest request = terminalRequestMapper.fromCreateDto(dto);
         TerminalRequest saved = terminalRequestRepository.save(request);
 
+        log.info("[Request={}] Status: {} | Solicitação criada para customerId={}, terminalType={}",
+                saved.getId(), saved.getStatus(), saved.getCustomerId(), saved.getTerminalType());
+
         try {
             customerValidationService.validate(saved);
             terminalReservationService.reserve(saved);
             deliverySchedulingService.schedule(saved);
 
+            log.info("[Request={}] Status: {} | Fluxo concluído com sucesso",
+                    saved.getId(), saved.getStatus());
+
         } catch (CustomerNotFoundException e) {
             saved.setStatus(TerminalRequestStatus.REJEITADO);
             terminalRequestRepository.save(saved);
+            log.warn("[Request={}] Status: {} | Cliente não encontrado ou inativo: {}",
+                    saved.getId(), saved.getStatus(), e.getMessage());
         } catch (TerminalUnavailableException e) {
             saved.setStatus(TerminalRequestStatus.ERRO_RESERVA);
             terminalRequestRepository.save(saved);
+            log.warn("[Request={}] Status: {} | Erro na reserva do terminal: {}",
+                    saved.getId(), saved.getStatus(), e.getMessage());
         } catch (LogisticsException e) {
             saved.setStatus(TerminalRequestStatus.ERRO_AGENDAMENTO);
             terminalRequestRepository.save(saved);
+            log.warn("[Request={}] Status: {} | Erro no agendamento de entrega: {}",
+                    saved.getId(), saved.getStatus(), e.getMessage());
         }
 
         return terminalRequestMapper.toDto(saved);
