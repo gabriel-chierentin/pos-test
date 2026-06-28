@@ -1,0 +1,177 @@
+{
+  "info": {
+    "_postman_id": "03500177-d970-4302-a7bd-194644a6838c",
+    "name": "POS TEST",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "44794854"
+  },
+  "item": [
+    {
+      "name": "/terminal-requests/{id}",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/api/terminal-requests/7a924f40-1c43-40d4-b1a6-1bf88f75fb79",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "terminal-requests",
+            "7a924f40-1c43-40d4-b1a6-1bf88f75fb79"
+          ]
+        },
+        "description": "Generated from cURL: curl -X GET http://localhost:8080/terminal-requests/{id} \\\r\n  -H \"Content-Type: application/json\"\r\n"
+      },
+      "response": []
+    },
+    {
+      "name": "/terminal-requests [AGENDADO]",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"customerId\": \"CUST-123\",\r\n    \"terminalType\": \"POS_WIFI\",\r\n    \"address\": {\r\n      \"street\": \"Rua Exemplo\",\r\n      \"number\": \"100\",\r\n      \"city\": \"São Paulo\",\r\n      \"state\": \"SP\",\r\n      \"zipCode\": \"01000-000\"\r\n    }\r\n  }",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/terminal-requests",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "terminal-requests"
+          ]
+        },
+        "description": "Generated from cURL: curl -X POST http://localhost:8080/terminal-requests \\\r\n  -H \"Content-Type: application/json\" \\\r\n  -d '{\r\n    \"customerId\": \"CUST-123\",\r\n    \"terminalType\": \"POS_WIFI\",\r\n    \"address\": {\r\n      \"street\": \"Rua Exemplo\",\r\n      \"number\": \"100\",\r\n      \"city\": \"São Paulo\",\r\n      \"state\": \"SP\",\r\n      \"zipCode\": \"01000-000\"\r\n    }\r\n  }'\r\n"
+      },
+      "response": []
+    },
+    {
+      "name": "/terminal-requests [REJEITADO]",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"customerId\": \"CUST-456\",\r\n    \"terminalType\": \"POS_WIFI\",\r\n    \"address\": {\r\n      \"street\": \"Rua Exemplo\",\r\n      \"number\": \"100\",\r\n      \"city\": \"São Paulo\",\r\n      \"state\": \"SP\",\r\n      \"zipCode\": \"01000-000\"\r\n    }\r\n  }",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/terminal-requests",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "terminal-requests"
+          ]
+        },
+        "description": "Generated from cURL: curl -X POST http://localhost:8080/terminal-requests \\\r\n  -H \"Content-Type: application/json\" \\\r\n  -d '{\r\n    \"customerId\": \"CUST-123\",\r\n    \"terminalType\": \"POS_WIFI\",\r\n    \"address\": {\r\n      \"street\": \"Rua Exemplo\",\r\n      \"number\": \"100\",\r\n      \"city\": \"São Paulo\",\r\n      \"state\": \"SP\",\r\n      \"zipCode\": \"01000-000\"\r\n    }\r\n  }'\r\n"
+      },
+      "response": []
+    },
+    {
+      "name": "/terminal-requests [ERRO_RESERVA]",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"customerId\": \"CUST-456\",\r\n    \"terminalType\": \"POS_WIFI\",\r\n    \"address\": {\r\n      \"street\": \"Rua Exemplo\",\r\n      \"number\": \"100\",\r\n      \"city\": \"São Paulo\",\r\n      \"state\": \"SP\",\r\n      \"zipCode\": \"01000-000\"\r\n    }\r\n  }",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/terminal-requests",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "terminal-requests"
+          ]
+        },
+        "description": "Generated from cURL: curl -X POST http://localhost:8080/terminal-requests \\\r\n  -H \"Content-Type: application/json\" \\\r\n  -d '{\r\n    \"customerId\": \"CUST-123\",\r\n    \"terminalType\": \"POS_WIFI\",\r\n    \"address\": {\r\n      \"street\": \"Rua Exemplo\",\r\n      \"number\": \"100\",\r\n      \"city\": \"São Paulo\",\r\n      \"state\": \"SP\",\r\n      \"zipCode\": \"01000-000\"\r\n    }\r\n  }'\r\n"
+      },
+      "response": []
+    },
+    {
+      "name": "/terminal-requests [ERRO_AGENDAMENTO]",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"customerId\": \"CUST-456\",\r\n    \"terminalType\": \"POS_WIFI\",\r\n    \"address\": {\r\n      \"street\": \"Rua Exemplo\",\r\n      \"number\": \"100\",\r\n      \"city\": \"São Paulo\",\r\n      \"state\": \"SP\",\r\n      \"zipCode\": \"01000-000\"\r\n    }\r\n  }",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/terminal-requests",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "terminal-requests"
+          ]
+        },
+        "description": "Generated from cURL: curl -X POST http://localhost:8080/terminal-requests \\\r\n  -H \"Content-Type: application/json\" \\\r\n  -d '{\r\n    \"customerId\": \"CUST-123\",\r\n    \"terminalType\": \"POS_WIFI\",\r\n    \"address\": {\r\n      \"street\": \"Rua Exemplo\",\r\n      \"number\": \"100\",\r\n      \"city\": \"São Paulo\",\r\n      \"state\": \"SP\",\r\n      \"zipCode\": \"01000-000\"\r\n    }\r\n  }'\r\n"
+      },
+      "response": []
+    }
+  ]
+}
