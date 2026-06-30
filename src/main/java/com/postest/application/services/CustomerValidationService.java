@@ -2,10 +2,10 @@ package com.postest.application.services;
 
 import com.postest.application.dtos.CustomerDto;
 import com.postest.application.exceptions.CustomerNotFoundException;
+import com.postest.application.ports.output.CustomerServicePort;
+import com.postest.application.ports.output.TerminalRequestRepositoryPort;
 import com.postest.domain.entities.TerminalRequest;
 import com.postest.domain.enums.TerminalRequestStatus;
-import com.postest.infrastructure.repositories.TerminalRequestRepository;
-import com.postest.infrastructure.services.external.FakeCustomerService;
 import com.postest.infrastructure.utils.SleepUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,15 +17,15 @@ public class CustomerValidationService {
 
     private static final Logger log = LoggerFactory.getLogger(CustomerValidationService.class);
 
-    private final FakeCustomerService customerService;
-    private final TerminalRequestRepository terminalRequestRepository;
+    private final CustomerServicePort customerService;
+    private final TerminalRequestRepositoryPort terminalRequestRepository;
 
     @Value("${terminal.request.step.delay:0}")
     private long stepDelay;
 
     public CustomerValidationService(
-            FakeCustomerService customerService,
-            TerminalRequestRepository terminalRequestRepository) {
+            CustomerServicePort customerService,
+            TerminalRequestRepositoryPort terminalRequestRepository) {
         this.customerService = customerService;
         this.terminalRequestRepository = terminalRequestRepository;
     }

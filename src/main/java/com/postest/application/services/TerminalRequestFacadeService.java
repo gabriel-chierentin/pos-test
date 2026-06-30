@@ -7,9 +7,11 @@ import com.postest.application.exceptions.LogisticsException;
 import com.postest.application.exceptions.TerminalRequestNotFoundException;
 import com.postest.application.exceptions.TerminalUnavailableException;
 import com.postest.application.mappers.TerminalRequestMapper;
+import com.postest.application.ports.input.CreateTerminalRequestUseCase;
+import com.postest.application.ports.input.GetTerminalRequestUseCase;
+import com.postest.application.ports.output.TerminalRequestRepositoryPort;
 import com.postest.domain.entities.TerminalRequest;
 import com.postest.domain.enums.TerminalRequestStatus;
-import com.postest.infrastructure.repositories.TerminalRequestRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -19,18 +21,18 @@ import java.util.UUID;
 
 @Service
 @Transactional
-public class TerminalRequestFacadeService {
+public class TerminalRequestFacadeService implements CreateTerminalRequestUseCase, GetTerminalRequestUseCase {
 
     private static final Logger log = LoggerFactory.getLogger(TerminalRequestFacadeService.class);
 
-    private final TerminalRequestRepository terminalRequestRepository;
+    private final TerminalRequestRepositoryPort terminalRequestRepository;
     private final TerminalRequestMapper terminalRequestMapper;
     private final CustomerValidationService customerValidationService;
     private final TerminalReservationService terminalReservationService;
     private final DeliverySchedulingService deliverySchedulingService;
 
     public TerminalRequestFacadeService(
-            TerminalRequestRepository terminalRequestRepository,
+            TerminalRequestRepositoryPort terminalRequestRepository,
             TerminalRequestMapper terminalRequestMapper,
             CustomerValidationService customerValidationService,
             TerminalReservationService terminalReservationService,
@@ -42,6 +44,7 @@ public class TerminalRequestFacadeService {
         this.deliverySchedulingService = deliverySchedulingService;
     }
 
+    @Override
     public TerminalRequestDto createTerminalRequest(CreateTerminalRequestDto dto) {
         TerminalRequest request = terminalRequestMapper.fromCreateDto(dto);
         TerminalRequest saved = terminalRequestRepository.save(request);
@@ -77,6 +80,7 @@ public class TerminalRequestFacadeService {
         return terminalRequestMapper.toDto(saved);
     }
 
+    @Override
     @Transactional(readOnly = true)
     public TerminalRequestDto getTerminalRequest(UUID requestId) {
         TerminalRequest request = terminalRequestRepository.findById(requestId)

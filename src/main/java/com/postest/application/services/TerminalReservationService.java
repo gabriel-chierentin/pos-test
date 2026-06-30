@@ -1,10 +1,10 @@
 package com.postest.application.services;
 
 import com.postest.application.exceptions.TerminalUnavailableException;
+import com.postest.application.ports.output.TerminalRequestRepositoryPort;
+import com.postest.application.ports.output.TerminalReservationServicePort;
 import com.postest.domain.entities.TerminalRequest;
 import com.postest.domain.enums.TerminalRequestStatus;
-import com.postest.infrastructure.repositories.TerminalRequestRepository;
-import com.postest.infrastructure.services.external.FakeTerminalReservationService;
 import com.postest.infrastructure.utils.SleepUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,15 +18,15 @@ public class TerminalReservationService {
 
     private static final Logger log = LoggerFactory.getLogger(TerminalReservationService.class);
 
-    private final TerminalRequestRepository terminalRequestRepository;
-    private final FakeTerminalReservationService externalReservationService;
+    private final TerminalRequestRepositoryPort terminalRequestRepository;
+    private final TerminalReservationServicePort externalReservationService;
 
     @Value("${terminal.request.step.delay:0}")
     private long stepDelay;
 
     public TerminalReservationService(
-            TerminalRequestRepository terminalRequestRepository,
-            FakeTerminalReservationService externalReservationService) {
+            TerminalRequestRepositoryPort terminalRequestRepository,
+            TerminalReservationServicePort externalReservationService) {
         this.terminalRequestRepository = terminalRequestRepository;
         this.externalReservationService = externalReservationService;
     }

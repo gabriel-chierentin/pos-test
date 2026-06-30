@@ -1,10 +1,10 @@
 package com.postest.application.services;
 
 import com.postest.application.exceptions.LogisticsException;
+import com.postest.application.ports.output.LogisticsServicePort;
+import com.postest.application.ports.output.TerminalRequestRepositoryPort;
 import com.postest.domain.entities.TerminalRequest;
 import com.postest.domain.enums.TerminalRequestStatus;
-import com.postest.infrastructure.repositories.TerminalRequestRepository;
-import com.postest.infrastructure.services.external.FakeLogisticsService;
 import com.postest.infrastructure.utils.SleepUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,15 +18,15 @@ public class DeliverySchedulingService {
 
     private static final Logger log = LoggerFactory.getLogger(DeliverySchedulingService.class);
 
-    private final FakeLogisticsService logisticsService;
-    private final TerminalRequestRepository terminalRequestRepository;
+    private final LogisticsServicePort logisticsService;
+    private final TerminalRequestRepositoryPort terminalRequestRepository;
 
     @Value("${terminal.request.step.delay:0}")
     private long stepDelay;
 
     public DeliverySchedulingService(
-            FakeLogisticsService logisticsService,
-            TerminalRequestRepository terminalRequestRepository) {
+            LogisticsServicePort logisticsService,
+            TerminalRequestRepositoryPort terminalRequestRepository) {
         this.logisticsService = logisticsService;
         this.terminalRequestRepository = terminalRequestRepository;
     }

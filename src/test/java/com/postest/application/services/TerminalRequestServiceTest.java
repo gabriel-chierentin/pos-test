@@ -4,10 +4,10 @@ import com.postest.application.dtos.AddressDto;
 import com.postest.application.dtos.CreateTerminalRequestDto;
 import com.postest.application.dtos.TerminalRequestDto;
 import com.postest.application.mappers.TerminalRequestMapper;
+import com.postest.application.ports.output.TerminalRequestRepositoryPort;
 import com.postest.domain.entities.TerminalRequest;
 import com.postest.domain.enums.TerminalRequestStatus;
 import com.postest.domain.enums.TerminalType;
-import com.postest.infrastructure.repositories.TerminalRequestRepository;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,7 +28,7 @@ class TerminalRequestServiceTest {
     private TerminalRequestFacadeService facadeService;
 
     @Mock
-    private TerminalRequestRepository terminalRequestRepository;
+    private TerminalRequestRepositoryPort terminalRequestRepository;
 
     @Mock
     private TerminalRequestMapper terminalRequestMapper;

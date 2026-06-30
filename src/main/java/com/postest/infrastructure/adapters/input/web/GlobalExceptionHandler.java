@@ -1,4 +1,4 @@
-package com.postest.presentation.handlers;
+package com.postest.infrastructure.adapters.input.web;
 
 import com.postest.application.dtos.ErrorResponseDto;
 import com.postest.application.exceptions.CustomerNotFoundException;

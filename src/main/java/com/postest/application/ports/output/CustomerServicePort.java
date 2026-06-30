@@ -1,8 +1,8 @@
-package com.postest.infrastructure.services.external;
+package com.postest.application.ports.output;
 
 import com.postest.application.dtos.CustomerDto;
 
-public interface FakeCustomerService {
+public interface CustomerServicePort {
     CustomerDto validateCustomer(String customerId);
 }
 

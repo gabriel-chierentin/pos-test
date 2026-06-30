@@ -1,12 +1,12 @@
-package com.postest.infrastructure.services.external.impl;
+package com.postest.infrastructure.adapters.output.external;
 
 import com.postest.application.dtos.CustomerDto;
 import com.postest.application.exceptions.CustomerNotFoundException;
-import com.postest.infrastructure.services.external.FakeCustomerService;
-import org.springframework.stereotype.Service;
+import com.postest.application.ports.output.CustomerServicePort;
+import org.springframework.stereotype.Component;
 
-@Service
-public class FakeCustomerServiceImpl implements FakeCustomerService {
+@Component
+public class FakeCustomerServiceAdapter implements CustomerServicePort {
 
     @Override
     public CustomerDto validateCustomer(String customerId) {
@@ -46,7 +46,6 @@ public class FakeCustomerServiceImpl implements FakeCustomerService {
                     .build();
         }
 
-        // Cliente não encontrado
         throw new CustomerNotFoundException(customerId);
     }
 }
